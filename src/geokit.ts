@@ -1,10 +1,44 @@
 import { LatLngLiteral } from './interfaces';
-import { base32, getBit, toRad, validateCoordinates } from './helpers';
+import { base32, calculateSlope, getBit, toDeg, toRad, validateCoordinates } from './helpers';
 
 /**
  * A class for the Geokit.
  */
 export class Geokit {
+  /**
+   * Generates 4 coordinates serving as a bounding box around two point.
+   * @param a Starting coordinates.
+   * @param b Ending coordinates.
+   * @param width Unit of distance in Km.
+   * @returns Bounding coordinates.
+   */
+  static boundingBox(a: LatLngLiteral, b: LatLngLiteral, width: number): Array<LatLngLiteral> {
+    const slope: number = calculateSlope(a, b);
+    width = ((Math.sqrt(2) * width) / 2);
+    const top: LatLngLiteral = (a.lng > b.lng) ? a : b;
+    const bottom: LatLngLiteral = (a.lng > b.lng) ? b : a;
+    const point1: LatLngLiteral = (slope > 0) ? { lat: top.lat, lng: top.lng + width } : { lat: top.lat, lng: top.lng + width };
+    const point2: LatLngLiteral = (slope > 0) ? { lat: top.lat + width, lng: top.lng } : { lat: top.lat - width, lng: top.lng };
+    const point3: LatLngLiteral = (slope > 0) ? { lat: bottom.lat - width, lng: bottom.lng } : { lat: bottom.lat + width, lng: bottom.lng };
+    const point4: LatLngLiteral = (slope > 0) ? { lat: bottom.lat, lng: bottom.lng - width } : { lat: bottom.lat, lng: bottom.lng - width };
+
+    return [point1, point2, point3, point4];
+  }
+
+  /**
+   * Generates an array of bounding box coordinates given an array of points.
+   * @param coordinates Array of coordinates to box.
+   * @param width Unit of distance in Km.
+   * @returns Array of bounding coordinates.
+   */
+  static boundingBoxes(coordinates: Array<LatLngLiteral>, width: number): Array<Array<LatLngLiteral>> {
+    const boxes: Array<Array<LatLngLiteral>> = [];
+    for (let i = 0; i < coordinates.length; i++) {
+      boxes.push(Geokit.boundingBox(coordinates[i], coordinates[i + 1], width))
+    }
+    return boxes;
+  }
+
   /**
    * Get the distance between two coordinates.
    * @param start Starting coordinates.

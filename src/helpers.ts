@@ -10,6 +10,16 @@ export function base32(value: number): string {
 }
 
 /**
+  * Calculates slope given two coordinates.
+  * @param a Starting coordinates.
+  * @param b Ending coordinates.
+  * @returns Slope between two coordinates.
+  */
+export function calculateSlope(a: LatLngLiteral, b: LatLngLiteral): number {
+  return ((b.lng - a.lng) / (b.lat - a.lat));
+}
+
+/**
   * Determine if coordinate is greater than midle of range in a bit representation.
   * @param point Coordinates.
   * @param range Range of coordinates to check.
@@ -20,6 +30,14 @@ export function getBit(point: number, range: number[]): number {
   return (middle > point) ? 0 : 1;
 }
 
+/**
+ * Get degrees from radians.
+ * @param radians Radians.
+ * @returns Degrees.
+ */
+export function toDeg(radians: number): number {
+  return (radians * 180 / Math.PI);
+}
 /**
  * Get radians from degrees.
  * @param degrees Degrees.
